@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Визиты МП — просмотр</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #DF3B20 0%, #424B52 100%);
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    animation: slideIn 0.6s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h2 {
+    color: #2d3748;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+    background: linear-gradient(135deg, #DF3B20, #424B52);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+    align-items: flex-end;
+  }
+
+  label {
+    font-size: 14px;
+    color: #4a5568;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  select, input {
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  select:focus, input:focus {
+    outline: none;
+    border-color: #DF3B20;
+    box-shadow: 0 0 0 3px rgba(223, 59, 32, 0.1);
+    transform: translateY(-1px);
+  }
+
+  button {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #DF3B20, #424B52);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(223, 59, 32, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(223, 59, 32, 0.4);
+  }
+
+  button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  button:disabled, select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    padding: 25px;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .stat:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat b {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #DF3B20, #424B52);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat div {
+    color: #718096;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  th {
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #2d3748;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #4a5568;
+    transition: background-color 0.2s ease;
+  }
+
+  tr:hover td {
+    background-color: #f8fafc;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #718096;
+    align-self: flex-end;
+    padding: 8px 12px;
+    background: rgba(223, 59, 32, 0.1);
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  /* Улучшенные анимации загрузки */
+  .loader {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    margin: 30px 0;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .loader.show {
+    display: flex;
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  .loading-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+
+  .spinner {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent, #DF3B20, #424B52, transparent);
+    animation: spin 1.5s linear infinite;
+    position: relative;
+  }
+
+  .spinner::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .loading-text {
+    color: #4a5568;
+    font-size: 16px;
+    font-weight: 500;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .loading-dots {
+    display: inline-block;
+    animation: dots 1.5s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+  }
+
+  /* Анимация для статистики */
+  .stat-animate {
+    animation: countUp 1s ease-out;
+  }
+
+  @keyframes countUp {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Анимация для таблицы */
+  .table-row {
+    animation: slideInRow 0.5s ease-out;
+  }
+
+  @keyframes slideInRow {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Разделители дат в таблице */
+  .date-separator {
+    background: linear-gradient(135deg, #DF3B20, #424B52);
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 10px 0 5px 0;
+    box-shadow: 0 2px 8px rgba(223, 59, 32, 0.2);
+  }
+
+  /* График */
+  .chart-container {
+    margin-top: 30px;
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .chart-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #DF3B20, #424B52);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .chart {
+    height: 300px;
+    position: relative;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(223, 59, 32, 0.05), transparent);
+  }
+
+  .chart-bar {
+    background: linear-gradient(to top, #DF3B20, #424B52);
+    border-radius: 4px 4px 0 0;
+    margin: 0 2px;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .chart-bar:hover {
+    background: linear-gradient(to top, #c2341a, #3a434a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(223, 59, 32, 0.3);
+  }
+
+  .chart-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #718096;
+  }
+
+  .chart-y-axis {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #718096;
+    padding: 20px 5px;
+  }
+
+  .chart-data {
+    position: absolute;
+    left: 50px;
+    right: 20px;
+    top: 20px;
+    bottom: 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .bar-tooltip {
+    position: absolute;
+    background: rgba(66, 75, 82, 0.95);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+  }
+
+  .bar-tooltip.show {
+    opacity: 1;
+  }
+
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    .container {
+      padding: 20px;
+      margin: 10px;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    .row {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .stats {
+      flex-direction: column;
+    }
+
+    .stat {
+      padding: 20px;
+    }
+
+    .stat b {
+      font-size: 2rem;
+    }
+
+    .chart {
+      height: 250px;
+      padding: 15px;
+    }
+
+    .chart-y-axis {
+      width: 30px;
+      font-size: 10px;
+    }
+
+    .chart-data {
+      left: 40px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+  <h2>Визиты медицинских представителей</h2>
+
+  <div class="row">
+    <label>Дата от
+      <input type="date" id="from">
+    </label>
+    <label>Дата до
+      <input type="date" id="to">
+    </label>
+      <div class="hint">Максимум 62 дня</div>
+  </div>
+
+  <div class="row">
+    <label>Территория
+      <select id="territory" disabled>
+        <option value="">(сначала выберите даты)</option>
+      </select>
+    </label>
+    <label>Мед представитель
+      <select id="rep" disabled>
+        <option value="">(после выбора территории)</option>
+      </select>
+    </label>
+    <div style="align-self:flex-end">
+        <button id="showBtn" disabled>
+          <span>Показать</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="loader" id="loader">
+      <div class="loading-container">
+        <div class="spinner"></div>
+      </div>
+      <div class="loading-text">
+        Загрузка<span class="loading-dots"></span>
+    </div>
+  </div>
+
+  <div class="stats" id="stats" style="display:none">
+      <div class="stat">
+        <b id="v1">0</b>
+        <div>Количество визитов</div>
+      </div>
+      <div class="stat">
+        <b id="v2">0</b>
+        <div>Количество уникальных визитов (доктора)</div>
+      </div>
+      <div class="stat">
+        <b id="v3">0</b>
+        <div>Количество ЛПУ</div>
+      </div>
+  </div>
+
+    <table id="table" style="display:none">
+      <thead>
+        <tr>
+          <th>Дата визита</th>
+          <th>Имя доктора</th>
+          <th>Специальность</th>
+          <th>ЛПУ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="chart-container" id="chartContainer" style="display:none">
+      <div class="chart-title">Количество визитов по дням</div>
+      <div class="chart">
+        <div class="chart-y-axis" id="yAxis"></div>
+        <div class="chart-data" id="chartData"></div>
+        <div class="chart-labels" id="chartLabels"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbwWuHUvwa5q_JO4II2k7mc-OzIhyz5untrv2YgyA4E-aBPE9M8gJdjHd7aitEr2SatQHg/exec'; // вставьте URL веб-приложения
+
+const fromEl = document.getElementById('from');
+const toEl   = document.getElementById('to');
+const terrEl = document.getElementById('territory');
+const repEl  = document.getElementById('rep');
+const btn    = document.getElementById('showBtn');
+const loader = document.getElementById('loader');
+
+function showLoader(message = 'Загрузка'){ 
+  loader.querySelector('.loading-text').innerHTML = `${message}<span class="loading-dots"></span>`;
+  loader.classList.add('show');
+  loader.style.display = 'flex';
+}
+function hideLoader(){ 
+  loader.classList.remove('show');
+  setTimeout(() => {
+    loader.style.display = 'none';
+  }, 300);
+}
+
+function daysBetween(a,b){
+  const d1 = new Date(a+'T00:00:00'), d2 = new Date(b+'T00:00:00');
+  return Math.ceil((d2-d1)/(1000*60*60*24))+1;
+}
+
+function datesValid(){
+  const f = fromEl.value, t = toEl.value;
+  if (!f || !t) return false;
+  if (new Date(f) > new Date(t)) return false;
+  if (daysBetween(f,t) > 62) return false;
+  return true;
+}
+
+async function loadTerritories(){
+  if (!datesValid()) {
+    terrEl.disabled = true; repEl.disabled = true; btn.disabled = true;
+    terrEl.innerHTML = '<option value="">(сначала выберите корректный диапазон дат)</option>';
+    repEl.innerHTML  = '<option value="">(после выбора территории)</option>';
+    return;
+  }
+  terrEl.disabled = true; repEl.disabled = true; btn.disabled = true;
+  showLoader('Загрузка территорий');
+  try{
+    const url = `${API}?act=meta&what=territories&from=${fromEl.value}&to=${toEl.value}`;
+    const js  = await (await fetch(url)).json();
+    terrEl.innerHTML = '<option value="">(все)</option>';
+    (js.territories||[]).forEach(t=>{
+      const o=document.createElement('option'); o.value=o.textContent=t; terrEl.appendChild(o);
+    });
+    terrEl.disabled=false;
+  }catch(e){ alert('Ошибка загрузки территорий: '+e); }
+  finally{ hideLoader(); }
+}
+
+async function loadReps(){
+  repEl.disabled = true; btn.disabled = true;
+  repEl.innerHTML = '<option value="">(все)</option>';
+  if (!terrEl.value && !datesValid()) return;
+  showLoader('Загрузка представителей');
+  try{
+    const url = `${API}?act=meta&what=reps&from=${fromEl.value}&to=${toEl.value}&territory=${encodeURIComponent(terrEl.value||'')}`;
+    const js = await (await fetch(url)).json();
+    (js.reps||[]).forEach(r=>{
+      const o=document.createElement('option'); o.value=o.textContent=r; repEl.appendChild(o);
+    });
+    repEl.disabled = false;
+    btn.disabled = false;
+  }catch(e){ alert('Ошибка загрузки МП: '+e); }
+  finally{ hideLoader(); }
+}
+
+// Функция анимации счетчика
+function animateCounter(element, target, duration = 1000) {
+  const start = 0;
+  const increment = target / (duration / 16);
+  let current = start;
+  
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= target) {
+      element.textContent = target;
+      clearInterval(timer);
+    } else {
+      element.textContent = Math.floor(current);
+    }
+  }, 16);
+}
+
+// Функция форматирования даты
+function formatDate(dateStr) {
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
+// Функция создания графика
+function createChart(visitsData) {
+  const chartContainer = document.getElementById('chartContainer');
+  const chartData = document.getElementById('chartData');
+  const chartLabels = document.getElementById('chartLabels');
+  const yAxis = document.getElementById('yAxis');
+  
+  // Группируем визиты по датам
+  const visitsByDate = {};
+  visitsData.forEach(visit => {
+    const date = visit.date;
+    visitsByDate[date] = (visitsByDate[date] || 0) + 1;
+  });
+  
+  // Сортируем даты
+  const sortedDates = Object.keys(visitsByDate).sort();
+  const maxVisits = Math.max(...Object.values(visitsByDate));
+  
+  // Создаем Y-ось
+  const yAxisValues = [];
+  const step = Math.max(1, Math.ceil(maxVisits / 5));
+  for (let i = 0; i <= maxVisits; i += step) {
+    yAxisValues.push(i);
+  }
+  if (yAxisValues[yAxisValues.length - 1] !== maxVisits) {
+    yAxisValues.push(maxVisits);
+  }
+  
+  yAxis.innerHTML = yAxisValues.reverse().map(val => `<div>${val}</div>`).join('');
+  
+  // Создаем столбцы графика
+  chartData.innerHTML = '';
+  chartLabels.innerHTML = '';
+  
+  sortedDates.forEach((date, index) => {
+    const visits = visitsByDate[date];
+    const height = (visits / maxVisits) * 100;
+    
+    // Создаем столбец
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar';
+    bar.style.height = `${height}%`;
+    bar.style.flex = '1';
+    bar.title = `${formatDate(date)}: ${visits} визит${visits === 1 ? '' : visits < 5 ? 'а' : 'ов'}`;
+    
+    // Добавляем обработчик hover
+    bar.addEventListener('mouseenter', (e) => {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'bar-tooltip show';
+      tooltip.textContent = `${formatDate(date)}: ${visits} визит${visits === 1 ? '' : visits < 5 ? 'а' : 'ов'}`;
+      document.body.appendChild(tooltip);
+      
+      const rect = bar.getBoundingClientRect();
+      tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+      tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
+      
+      bar._tooltip = tooltip;
+    });
+    
+    bar.addEventListener('mouseleave', () => {
+      if (bar._tooltip) {
+        document.body.removeChild(bar._tooltip);
+        bar._tooltip = null;
+      }
+    });
+    
+    chartData.appendChild(bar);
+    
+    // Добавляем подпись даты (каждую 3-ю или последнюю)
+    if (index % 3 === 0 || index === sortedDates.length - 1) {
+      const label = document.createElement('div');
+      label.textContent = formatDate(date).split('.')[0] + '.' + formatDate(date).split('.')[1];
+      label.style.flex = '1';
+      label.style.textAlign = 'center';
+      chartLabels.appendChild(label);
+    } else {
+      const spacer = document.createElement('div');
+      spacer.style.flex = '1';
+      chartLabels.appendChild(spacer);
+    }
+  });
+  
+  chartContainer.style.display = 'block';
+}
+
+async function showStats(){
+  if (!datesValid()) { alert('Укажите корректный диапазон (не более 62 дней)'); return; }
+  showLoader('Загрузка данных');
+  try{
+    const url = `${API}?act=stats&from=${fromEl.value}&to=${toEl.value}&territory=${encodeURIComponent(terrEl.value||'')}&rep=${encodeURIComponent(repEl.value||'')}`;
+    const js = await (await fetch(url)).json();
+    if (!js.ok) { alert(js.error||'Ошибка'); return; }
+
+    // Анимация статистики
+    const statsContainer = document.getElementById('stats');
+    statsContainer.style.display = 'flex';
+    
+    // Анимируем счетчики
+    const v1El = document.getElementById('v1');
+    const v2El = document.getElementById('v2');
+    const v3El = document.getElementById('v3');
+    
+    setTimeout(() => {
+      animateCounter(v1El, js.stats.visits_total);
+      animateCounter(v2El, js.stats.unique_visits);
+      animateCounter(v3El, js.stats.lpus_total);
+    }, 200);
+
+    // Создаем график
+    if (js.visits && js.visits.length > 0) {
+      createChart(js.visits);
+    }
+
+    // Анимация таблицы с разделителями дат
+    const tbody = document.querySelector('#table tbody');
+    tbody.innerHTML = '';
+    
+    const table = document.getElementById('table');
+    table.style.display = '';
+    
+    // Группируем визиты по датам
+    const visitsByDate = {};
+    js.visits.forEach(visit => {
+      if (!visitsByDate[visit.date]) {
+        visitsByDate[visit.date] = [];
+      }
+      visitsByDate[visit.date].push(visit);
+    });
+    
+    // Сортируем даты
+    const sortedDates = Object.keys(visitsByDate).sort();
+    
+    let rowIndex = 0;
+    sortedDates.forEach((date, dateIndex) => {
+      const visits = visitsByDate[date];
+      
+      // Добавляем разделитель даты
+      setTimeout(() => {
+        const separatorRow = document.createElement('tr');
+        const separatorCell = document.createElement('td');
+        separatorCell.colSpan = 4;
+        separatorCell.className = 'date-separator';
+        separatorCell.textContent = `${formatDate(date)} (${visits.length} визит${visits.length === 1 ? '' : visits.length < 5 ? 'а' : 'ов'})`;
+        separatorRow.appendChild(separatorCell);
+        tbody.appendChild(separatorRow);
+      }, rowIndex * 50);
+      rowIndex++;
+      
+      // Добавляем строки визитов для этой даты
+      visits.forEach((visit, visitIndex) => {
+        setTimeout(() => {
+          const tr = document.createElement('tr');
+          tr.className = 'table-row';
+          tr.innerHTML = `<td>${visit.date||''}</td><td>${visit.doctor||''}</td><td>${visit.specialty||''}</td><td>${visit.lpu||''}</td>`;
+          tbody.appendChild(tr);
+        }, rowIndex * 50);
+        rowIndex++;
+      });
+    });
+    
+  }catch(e){ alert('Ошибка запроса: '+e); }
+  finally{ hideLoader(); }
+}
+
+// Слушатели
+fromEl.addEventListener('change', loadTerritories);
+toEl.addEventListener('change',   loadTerritories);
+terrEl.addEventListener('change', loadReps);
+document.getElementById('showBtn').addEventListener('click', showStats);
+</script>
+</body>
+</html>
