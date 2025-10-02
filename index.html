@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Визиты МП — просмотр</title>
 <style>
   * {
@@ -80,6 +80,18 @@
     transition: all 0.3s ease;
     background: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23424B52' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
   }
 
   select:focus, input:focus {
@@ -102,6 +114,10 @@
     box-shadow: 0 4px 15px rgba(223, 59, 32, 0.3);
     position: relative;
     overflow: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   button:hover:not(:disabled) {
@@ -360,23 +376,121 @@
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 20px;
-    background: linear-gradient(to top, rgba(223, 59, 32, 0.05), transparent);
+    background: linear-gradient(to top, rgba(223, 59, 32, 0.02), transparent);
   }
 
-  .chart-bar {
-    background: linear-gradient(to top, #DF3B20, #424B52);
-    border-radius: 4px 4px 0 0;
-    margin: 0 2px;
-    position: relative;
-    transition: all 0.3s ease;
+  .chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .chart-line {
+    fill: none;
+    stroke: #DF3B20;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 4px rgba(223, 59, 32, 0.3));
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawLine 2s ease-out forwards;
+  }
+
+  @keyframes drawLine {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .chart-point {
+    fill: #DF3B20;
+    stroke: white;
+    stroke-width: 2;
     cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: fadeInPoint 0.5s ease-out forwards;
   }
 
-  .chart-bar:hover {
-    background: linear-gradient(to top, #c2341a, #3a434a);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(223, 59, 32, 0.3);
+  @keyframes fadeInPoint {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
+
+  .chart-point:hover {
+    fill: #424B52;
+    r: 8;
+    filter: drop-shadow(0 4px 8px rgba(223, 59, 32, 0.4));
+  }
+
+  .chart-point.selected {
+    fill: #424B52;
+    r: 8;
+  }
+
+  .chart-grid {
+    stroke: #e2e8f0;
+    stroke-width: 1;
+    opacity: 0.5;
+  }
+
+  .chart-grid-horizontal {
+    stroke-dasharray: 2,2;
+  }
+
+  .point-label {
+    position: absolute;
+    background: rgba(66, 75, 82, 0.95);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+  }
+
+  .point-label.show {
+    opacity: 1;
+  }
+
+  .chart-trend {
+    fill: none;
+    stroke: #424B52;
+    stroke-width: 2;
+    stroke-dasharray: 5,5;
+    opacity: 0.7;
+  }
+
+  .point-value {
+    font-size: 12px;
+    font-weight: 600;
+    fill: #424B52;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    opacity: 0;
+    animation: fadeInValue 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeInValue {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
 
   .chart-labels {
     display: flex;
@@ -429,46 +543,227 @@
     opacity: 1;
   }
 
-  /* Адаптивность */
+  /* Мобильные оптимизации */
   @media (max-width: 768px) {
+    body {
+      padding: 10px;
+    }
+
     .container {
-      padding: 20px;
-      margin: 10px;
+      padding: 15px;
+      margin: 0;
+      border-radius: 15px;
     }
 
     h2 {
-      font-size: 2rem;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
     }
 
     .row {
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
+    }
+
+    label {
+      min-width: auto;
+      width: 100%;
+    }
+
+    select, input {
+      min-width: auto;
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 16px; /* Предотвращает zoom на iOS */
+    }
+
+    button {
+      width: 100%;
+      padding: 16px 24px;
+      font-size: 16px;
+    }
+
+    .hint {
+      align-self: flex-start;
+      margin-top: 5px;
     }
 
     .stats {
       flex-direction: column;
+      gap: 12px;
+      margin: 20px 0;
     }
 
     .stat {
       padding: 20px;
+      text-align: center;
     }
 
     .stat b {
-      font-size: 2rem;
+      font-size: 2.2rem;
+    }
+
+    .stat div {
+      font-size: 13px;
+    }
+
+    /* Мобильная таблица */
+    table {
+      font-size: 14px;
+      border-radius: 12px;
+      overflow-x: auto;
+      display: block;
+      white-space: nowrap;
+    }
+
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    tr {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 12px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    td {
+      border: none;
+      padding: 6px 0;
+      position: relative;
+      padding-left: 35%;
+      white-space: normal;
+    }
+
+    td:before {
+      content: attr(data-label) ": ";
+      position: absolute;
+      left: 6px;
+      width: 30%;
+      padding-right: 10px;
+      white-space: nowrap;
+      font-weight: 600;
+      color: #424B52;
+    }
+
+    .date-separator {
+      padding: 10px;
+      font-size: 14px;
+      margin: 8px 0;
+    }
+
+    /* Мобильный график */
+    .chart-container {
+      padding: 15px;
+      margin-top: 20px;
+    }
+
+    .chart-title {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
     }
 
     .chart {
-      height: 250px;
+      height: 200px;
+      padding: 10px;
+    }
+
+    .chart-svg {
+      height: 100%;
+    }
+
+    .chart-line {
+      stroke-width: 2.5;
+    }
+
+    .chart-point {
+      r: 5;
+    }
+
+    .chart-point:hover,
+    .chart-point.selected {
+      r: 7;
+    }
+
+    .chart-grid {
+      stroke-width: 0.5;
+    }
+
+    .chart-labels {
+      font-size: 10px;
+      margin-top: 8px;
+    }
+
+    .point-label {
+      font-size: 11px;
+      padding: 3px 6px;
+    }
+
+
+    /* Улучшенный лоадер для мобильных */
+    .loading-container {
+      width: 60px;
+      height: 60px;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+    }
+
+    .loading-text {
+      font-size: 14px;
+    }
+  }
+
+  /* Очень маленькие экраны */
+  @media (max-width: 480px) {
+    .container {
+      padding: 10px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    .stat {
       padding: 15px;
     }
 
-    .chart-y-axis {
-      width: 30px;
-      font-size: 10px;
+    .stat b {
+      font-size: 1.8rem;
     }
 
-    .chart-data {
-      left: 40px;
+    .chart {
+      height: 180px;
+    }
+
+    td:before {
+      font-size: 12px;
+    }
+  }
+
+  /* Горизонтальная ориентация на мобильных */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .container {
+      padding: 10px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .chart {
+      height: 150px;
     }
   }
 </style>
@@ -529,7 +824,7 @@
       </div>
   </div>
 
-    <table id="table" style="display:none">
+  <table id="table" style="display:none">
       <thead>
         <tr>
           <th>Дата визита</th>
@@ -538,14 +833,20 @@
           <th>ЛПУ</th>
         </tr>
       </thead>
-      <tbody></tbody>
-    </table>
+    <tbody></tbody>
+  </table>
 
     <div class="chart-container" id="chartContainer" style="display:none">
       <div class="chart-title">Количество визитов по дням</div>
       <div class="chart">
-        <div class="chart-y-axis" id="yAxis"></div>
-        <div class="chart-data" id="chartData"></div>
+        <svg class="chart-svg" id="chartSvg">
+          <defs>
+            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#DF3B20;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#424B52;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
         <div class="chart-labels" id="chartLabels"></div>
       </div>
     </div>
@@ -561,6 +862,7 @@ const repEl  = document.getElementById('rep');
 const btn    = document.getElementById('showBtn');
 const loader = document.getElementById('loader');
 
+
 function showLoader(message = 'Загрузка'){ 
   loader.querySelector('.loading-text').innerHTML = `${message}<span class="loading-dots"></span>`;
   loader.classList.add('show');
@@ -572,6 +874,21 @@ function hideLoader(){
     loader.style.display = 'none';
   }, 300);
 }
+
+// Функция сброса фильтров
+function resetFilters() {
+  terrEl.disabled = true;
+  repEl.disabled = true;
+  btn.disabled = true;
+  terrEl.innerHTML = '<option value="">(сначала выберите даты)</option>';
+  repEl.innerHTML = '<option value="">(после выбора территории)</option>';
+  
+  // Скрываем результаты
+  document.getElementById('stats').style.display = 'none';
+  document.getElementById('table').style.display = 'none';
+  document.getElementById('chartContainer').style.display = 'none';
+}
+
 
 function daysBetween(a,b){
   const d1 = new Date(a+'T00:00:00'), d2 = new Date(b+'T00:00:00');
@@ -588,9 +905,7 @@ function datesValid(){
 
 async function loadTerritories(){
   if (!datesValid()) {
-    terrEl.disabled = true; repEl.disabled = true; btn.disabled = true;
-    terrEl.innerHTML = '<option value="">(сначала выберите корректный диапазон дат)</option>';
-    repEl.innerHTML  = '<option value="">(после выбора территории)</option>';
+    resetFilters();
     return;
   }
   terrEl.disabled = true; repEl.disabled = true; btn.disabled = true;
@@ -606,6 +921,7 @@ async function loadTerritories(){
   }catch(e){ alert('Ошибка загрузки территорий: '+e); }
   finally{ hideLoader(); }
 }
+
 
 async function loadReps(){
   repEl.disabled = true; btn.disabled = true;
@@ -651,12 +967,11 @@ function formatDate(dateStr) {
   });
 }
 
-// Функция создания графика
+// Функция создания линейного графика
 function createChart(visitsData) {
   const chartContainer = document.getElementById('chartContainer');
-  const chartData = document.getElementById('chartData');
+  const svg = document.getElementById('chartSvg');
   const chartLabels = document.getElementById('chartLabels');
-  const yAxis = document.getElementById('yAxis');
   
   // Группируем визиты по датам
   const visitsByDate = {};
@@ -669,71 +984,190 @@ function createChart(visitsData) {
   const sortedDates = Object.keys(visitsByDate).sort();
   const maxVisits = Math.max(...Object.values(visitsByDate));
   
-  // Создаем Y-ось
-  const yAxisValues = [];
-  const step = Math.max(1, Math.ceil(maxVisits / 5));
-  for (let i = 0; i <= maxVisits; i += step) {
-    yAxisValues.push(i);
-  }
-  if (yAxisValues[yAxisValues.length - 1] !== maxVisits) {
-    yAxisValues.push(maxVisits);
+  // Очищаем SVG
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#DF3B20;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#424B52;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+  `;
+  
+  // Настройки графика
+  const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+  const width = svg.clientWidth - margin.left - margin.right;
+  const height = svg.clientHeight - margin.top - margin.bottom;
+  
+  // Создаем сетку
+  const gridLines = svg.querySelectorAll('.chart-grid');
+  gridLines.forEach(line => line.remove());
+  
+  // Горизонтальные линии сетки
+  for (let i = 0; i <= 5; i++) {
+    const y = margin.top + (height / 5) * i;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('class', 'chart-grid chart-grid-horizontal');
+    line.setAttribute('x1', margin.left);
+    line.setAttribute('x2', width + margin.left);
+    line.setAttribute('y1', y);
+    line.setAttribute('y2', y);
+    svg.appendChild(line);
   }
   
-  yAxis.innerHTML = yAxisValues.reverse().map(val => `<div>${val}</div>`).join('');
+  // Вертикальные линии сетки
+  for (let i = 0; i <= sortedDates.length - 1; i++) {
+    const x = margin.left + (width / (sortedDates.length - 1)) * i;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('class', 'chart-grid');
+    line.setAttribute('x1', x);
+    line.setAttribute('x2', x);
+    line.setAttribute('y1', margin.top);
+    line.setAttribute('y2', height + margin.top);
+    svg.appendChild(line);
+  }
   
-  // Создаем столбцы графика
-  chartData.innerHTML = '';
-  chartLabels.innerHTML = '';
+  // Создаем точки и линии
+  const points = [];
+  let pathData = '';
   
   sortedDates.forEach((date, index) => {
     const visits = visitsByDate[date];
-    const height = (visits / maxVisits) * 100;
+    const x = margin.left + (width / (sortedDates.length - 1)) * index;
+    const y = margin.top + height - (visits / maxVisits) * height;
     
-    // Создаем столбец
-    const bar = document.createElement('div');
-    bar.className = 'chart-bar';
-    bar.style.height = `${height}%`;
-    bar.style.flex = '1';
-    bar.title = `${formatDate(date)}: ${visits} визит${visits === 1 ? '' : visits < 5 ? 'а' : 'ов'}`;
+    points.push({ x, y, visits, date });
     
-    // Добавляем обработчик hover
-    bar.addEventListener('mouseenter', (e) => {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'bar-tooltip show';
-      tooltip.textContent = `${formatDate(date)}: ${visits} визит${visits === 1 ? '' : visits < 5 ? 'а' : 'ов'}`;
-      document.body.appendChild(tooltip);
-      
-      const rect = bar.getBoundingClientRect();
-      tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-      tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
-      
-      bar._tooltip = tooltip;
-    });
-    
-    bar.addEventListener('mouseleave', () => {
-      if (bar._tooltip) {
-        document.body.removeChild(bar._tooltip);
-        bar._tooltip = null;
-      }
-    });
-    
-    chartData.appendChild(bar);
-    
-    // Добавляем подпись даты (каждую 3-ю или последнюю)
-    if (index % 3 === 0 || index === sortedDates.length - 1) {
-      const label = document.createElement('div');
-      label.textContent = formatDate(date).split('.')[0] + '.' + formatDate(date).split('.')[1];
-      label.style.flex = '1';
-      label.style.textAlign = 'center';
-      chartLabels.appendChild(label);
+    if (index === 0) {
+      pathData += `M ${x} ${y}`;
     } else {
-      const spacer = document.createElement('div');
-      spacer.style.flex = '1';
-      chartLabels.appendChild(spacer);
+      pathData += ` L ${x} ${y}`;
     }
   });
   
+  // Создаем линию тренда (простая линейная регрессия)
+  const trendLine = createTrendLine(points, margin, width, height);
+  
+  // Добавляем линию тренда
+  const trendPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  trendPath.setAttribute('class', 'chart-trend');
+  trendPath.setAttribute('d', trendLine);
+  svg.appendChild(trendPath);
+  
+  // Добавляем основную линию
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('class', 'chart-line');
+  path.setAttribute('d', pathData);
+  path.setAttribute('stroke', 'url(#lineGradient)');
+  svg.appendChild(path);
+  
+  // Добавляем точки с задержкой анимации
+  points.forEach((point, index) => {
+    setTimeout(() => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('class', 'chart-point');
+      circle.setAttribute('cx', point.x);
+      circle.setAttribute('cy', point.y);
+      circle.setAttribute('r', 6);
+      circle.setAttribute('data-index', index);
+      svg.appendChild(circle);
+      
+      // Добавляем цифру возле точки
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('class', 'point-value');
+      text.setAttribute('x', point.x);
+      text.setAttribute('y', point.y - 15);
+      text.textContent = point.visits;
+      svg.appendChild(text);
+      
+      // Добавляем обработчики событий для точек
+      addPointEvents(circle, point, index);
+    }, 1000 + (index * 200)); // Задержка после анимации линии
+  });
+  
+  // Создаем подписи дат
+  chartLabels.innerHTML = '';
+  sortedDates.forEach((date, index) => {
+    const label = document.createElement('div');
+    label.textContent = formatDate(date).split('.')[0] + '.' + formatDate(date).split('.')[1];
+    label.style.flex = '1';
+    label.style.textAlign = 'center';
+    label.style.fontSize = '12px';
+    label.style.color = '#718096';
+    chartLabels.appendChild(label);
+  });
+  
   chartContainer.style.display = 'block';
+}
+
+// Функция создания линии тренда
+function createTrendLine(points, margin, width, height) {
+  if (points.length < 2) return '';
+  
+  // Простая линейная регрессия
+  const n = points.length;
+  const sumX = points.reduce((sum, p) => sum + p.x, 0);
+  const sumY = points.reduce((sum, p) => sum + p.y, 0);
+  const sumXY = points.reduce((sum, p) => sum + p.x * p.y, 0);
+  const sumXX = points.reduce((sum, p) => sum + p.x * p.x, 0);
+  
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+  
+  const startX = margin.left;
+  const endX = margin.left + width;
+  const startY = slope * startX + intercept;
+  const endY = slope * endX + intercept;
+  
+  return `M ${startX} ${startY} L ${endX} ${endY}`;
+}
+
+// Функция добавления событий к точкам
+function addPointEvents(circle, point, index) {
+  let tooltip = null;
+  
+  function showTooltip() {
+    if (tooltip) return;
+    
+    tooltip = document.createElement('div');
+    tooltip.className = 'point-label show';
+    tooltip.textContent = `${point.visits}`;
+    document.body.appendChild(tooltip);
+    
+    const rect = circle.getBoundingClientRect();
+    tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+    tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+    
+    circle.classList.add('selected');
+  }
+  
+  function hideTooltip() {
+    if (tooltip) {
+      document.body.removeChild(tooltip);
+      tooltip = null;
+    }
+    circle.classList.remove('selected');
+  }
+  
+  // Десктоп события
+  circle.addEventListener('mouseenter', showTooltip);
+  circle.addEventListener('mouseleave', hideTooltip);
+  
+  // Мобильные события
+  circle.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    showTooltip();
+    setTimeout(hideTooltip, 2000);
+  });
+  
+  circle.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (tooltip) {
+      hideTooltip();
+    } else {
+      showTooltip();
+    }
+  });
 }
 
 async function showStats(){
@@ -804,22 +1238,29 @@ async function showStats(){
         setTimeout(() => {
           const tr = document.createElement('tr');
           tr.className = 'table-row';
-          tr.innerHTML = `<td>${visit.date||''}</td><td>${visit.doctor||''}</td><td>${visit.specialty||''}</td><td>${visit.lpu||''}</td>`;
-          tbody.appendChild(tr);
+          tr.innerHTML = `
+            <td data-label="Дата визита">${visit.date||''}</td>
+            <td data-label="Имя доктора">${visit.doctor||''}</td>
+            <td data-label="Специальность">${visit.specialty||''}</td>
+            <td data-label="ЛПУ">${visit.lpu||''}</td>
+          `;
+      tbody.appendChild(tr);
         }, rowIndex * 50);
         rowIndex++;
-      });
+    });
     });
     
   }catch(e){ alert('Ошибка запроса: '+e); }
   finally{ hideLoader(); }
 }
 
+
 // Слушатели
 fromEl.addEventListener('change', loadTerritories);
-toEl.addEventListener('change',   loadTerritories);
+toEl.addEventListener('change', loadTerritories);
 terrEl.addEventListener('change', loadReps);
-document.getElementById('showBtn').addEventListener('click', showStats);
+btn.addEventListener('click', showStats);
+
 </script>
 </body>
 </html>
